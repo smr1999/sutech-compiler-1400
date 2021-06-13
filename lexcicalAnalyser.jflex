@@ -25,7 +25,7 @@ import java.util.Vector;
 %}
 
 %eof{
-    System.out.println("************************************************");
+    System.out.println("\n\n");
     
     TableList tl = new TableList(4, "ID" , "Name" , "Value" , "Type").sortBy(0).withUnicode(true);
 
