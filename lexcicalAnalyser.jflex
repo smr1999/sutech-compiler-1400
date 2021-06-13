@@ -67,7 +67,7 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
         name_ = name_.replaceAll("\\s", "");
 
         String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceAll("\\s*", "");
+        value_ = value_.replaceFirst("\\s*", "");
 
         if(getToken(name_,table)==0){
             table.add(new Token(++counter , name_ , type_ , value_));
@@ -89,7 +89,7 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
         name_ = name_.replaceAll("\\s", "");
 
         String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceAll("\\s*", "");
+        value_ = value_.replaceFirst("\\s*", "");
 
         if(getToken(name_,table)==0){
             table.add(new Token(++counter , name_ , "N/A" , value_));
