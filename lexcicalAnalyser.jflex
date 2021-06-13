@@ -11,7 +11,17 @@ import java.util.Vector;
 %state SINGLE_COMMENT
 
 %{
-    
+    int counter = 0;
+    Vector<Token> table = new Vector<Token>();
+
+    public int getToken(String name , Vector<Token> allTokens){
+        for(Token t : allTokens){
+            if(t.Name.equals(name)){
+                return t.ID;
+            }
+        }
+        return 0;
+    }
 %}
 
 
