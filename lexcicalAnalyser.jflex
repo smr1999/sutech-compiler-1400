@@ -4,8 +4,6 @@ import java.util.Vector;
 
 %class Lexical
 %standalone
-%line
-%column
 
 %state MULTI_COMMENT
 %state SINGLE_COMMENT
@@ -25,7 +23,7 @@ import java.util.Vector;
 %}
 
 %eof{
-    System.out.println("\n\n");
+    System.out.println();
     
     TableList tl = new TableList(4, "ID" , "Name" , "Value" , "Type").sortBy(0).withUnicode(true);
 
@@ -138,6 +136,8 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
         System.out.println(temp + " : " + TokenType.IDENTIFIER);
     }
 
+    {DATA_TYPE} {System.out.println(yytext() + " : "+ TokenType.KEYWORD);}
+
 
     "=="|"!="|"&&"|"||"|"<="|">="|"++"|"--" {System.out.println(yytext() + " : "+ TokenType.OPERATOR);}
 
@@ -149,7 +149,7 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
 
     "|"|"\""|"\'"|"&" {System.out.println(yytext() + " : "+ TokenType.UNDEFINED);}
 
-    {WHITE_SPACE_CHAR} {}
+    {WHITE_SPACE_CHAR} {/* nothing */}
 
     . {System.out.println(yytext() + " : "+ TokenType.UNDEFINED);}
 }
