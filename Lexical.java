@@ -959,7 +959,7 @@ class Lexical {
         name_ = name_.replaceAll("\\s", "");
 
         String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceAll("\\s*", "");
+        value_ = value_.replaceFirst("\\s*", "");
 
         if(getToken(name_,table)==0){
             table.add(new Token(++counter , name_ , "N/A" , value_));
@@ -1007,7 +1007,7 @@ class Lexical {
         name_ = name_.replaceAll("\\s", "");
 
         String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceAll("\\s*", "");
+        value_ = value_.replaceFirst("\\s*", "");
 
         if(getToken(name_,table)==0){
             table.add(new Token(++counter , name_ , type_ , value_));
