@@ -135,9 +135,11 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
 }
 
 <MULTI_COMMENT>{
-
+    "*/" {yybegin(YYINITIAL);}
+    .|{NEWLINE} {}
 }
 
 <SINGLE_COMMENT>{
-
+    {NEWLINE} {yybegin(YYINITIAL);}
+    . {}
 }
