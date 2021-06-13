@@ -24,6 +24,12 @@ import java.util.Vector;
     }
 %}
 
+%eof{
+    System.out.println("**********************************");
+    for(Token tt : table){
+        System.out.println("ID is " + tt.ID + " | Name is "+ tt.Name + " | Value is " + tt.Value +" | with Type "+ tt.Type);
+    }
+%eof}
 
 ALPHA=[A-Za-z]
 DIGIT=[0-9]
