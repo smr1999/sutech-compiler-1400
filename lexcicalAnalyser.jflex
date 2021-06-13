@@ -7,5 +7,8 @@ import java.util.Vector;
 %line
 %column
 
+%state MULTI_COMMENT
+%state SINGLE_COMMENT
+
 %%
 
