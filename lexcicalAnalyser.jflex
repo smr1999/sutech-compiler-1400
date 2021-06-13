@@ -25,10 +25,14 @@ import java.util.Vector;
 %}
 
 %eof{
-    System.out.println("**********************************");
-    for(Token tt : table){
-        System.out.println("ID is " + tt.ID + " | Name is "+ tt.Name + " | Value is " + tt.Value +" | with Type "+ tt.Type);
-    }
+    System.out.println("************************************************");
+    
+    TableList tl = new TableList(4, "ID" , "Name" , "Value" , "Type").sortBy(0).withUnicode(true);
+
+    table.forEach(item -> tl.addRow(String.valueOf(item.ID),item.Name,item.Value,item.Type));
+
+    tl.print();
+
 %eof}
 
 ALPHA=[A-Za-z]
