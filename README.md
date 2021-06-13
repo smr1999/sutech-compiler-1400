@@ -14,7 +14,7 @@ In this project we just find five group of tokens :
 1. install jflex from **[here](https://www.jflex.de/)**
 2. create java project with command `jflex lexcicalAnalyser.jflex`
 3. compile java file with command `javac Lexical.java`
-4. execute java file with commadn `java Lexical <FileName>`
+4. execute program with command `java Lexical <FileName>`
 
 __Note: In this project we suppose that we have only one block of code so all identifier refers to main method block__
 
