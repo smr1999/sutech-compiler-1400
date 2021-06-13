@@ -10,5 +10,9 @@ import java.util.Vector;
 %state MULTI_COMMENT
 %state SINGLE_COMMENT
 
+%{
+    
+%}
+
 %%
 
