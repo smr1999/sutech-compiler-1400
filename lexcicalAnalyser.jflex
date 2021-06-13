@@ -145,7 +145,7 @@ TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
 
     {TYPES} {System.out.println(yytext() + " : "+ TokenType.LITERAL);}
 
-    "("|")"|"{"|"}"|";"|"."|"["|"]" {System.out.println(yytext() + " : "+ TokenType.DELIMITER);}
+    "("|")"|"{"|"}"|";"|"."|"["|"]"|":" {System.out.println(yytext() + " : "+ TokenType.DELIMITER);}
 
     "|"|"\""|"\'"|"&" {System.out.println(yytext() + " : "+ TokenType.UNDEFINED);}
 
