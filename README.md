@@ -12,7 +12,7 @@ __Note: In this prject we add these files so you don`t to download these files !
 4. create Parser.java file with command `java -jar java-cup-11b.jar -parser Parser parser.cup`
 5. extract java-cup-11b-runtime.jar and place `java_cup` folder near of project
 6. compile Main.java with command `javac Main.java`
-7. run project with command `java Main inputs\input#.txt`
+7. run project with command `java Main input\input#.txt`
 
 __Note: In this project we suppose that we have only one block of code so all identifier refers to main method block__
 
