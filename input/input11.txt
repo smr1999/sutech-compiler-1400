@@ -1,0 +1,15 @@
+void main() {
+    int sut = 2;
+    int x;
+    if(sut == 1) {
+        x = 10;
+    } else if (sut == 2) {
+        x = 20;
+    } else if (sut >= 3 && sut <= 5) {
+        x = 30;
+    } else {
+        x = 60;
+    }
+    x = (x / (sut + 2)) - 5;
+    x = x % sut;
+}
