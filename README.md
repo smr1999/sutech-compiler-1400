@@ -6,7 +6,7 @@
 
 ### To run this project follow the instruction
 1. install jflex from **[here](https://www.jflex.de/)**
-2. create Scanner.java file with command `jflex scanner.jflex`
+2. create Lexical.java file with command `jflex lexcicalAnalyser.jflex`
 3. install cup from **[here](http://www2.cs.tum.edu/projects/cup/)**  
 __Note: In this prject we add these files so you don`t to download these files !!!__
 4. create Parser.java file with command `java -jar java-cup-11b.jar -parser Parser parser.cup`
