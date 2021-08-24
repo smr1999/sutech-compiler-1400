@@ -1,0 +1,182 @@
+import java_cup.runtime.*;
+import java.util.*;
+import java.lang.*;
+ 
+parser code {:
+    public void syntax_error(Symbol cur_token){
+	      System.err.println("Syntax error at "+ cur_token.toString());
+    }
+
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof Symbol) {
+            Symbol s = ((Symbol) info);
+            if (s.left >= 0) {                
+                m.append(" in line "+(s.left+1));   
+                if (s.right >= 0)                    
+                    m.append(", column "+(s.right+1));
+            }
+        }
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+
+    public Vector<Token> allTokens;
+
+    public void setTable(Vector<Token> allTokens){
+        this.allTokens = allTokens;
+    }
+
+    public int findToken(String name){
+        for(Token t : this.allTokens){
+            if(t.Name.equals(name)){
+                return t.ID;
+            }
+        }
+        return 0;
+    }
+
+:};
+
+terminal VOID , MAIN , RETURN ;
+terminal java.lang.String INT , STRING , CHAR , BOOLEAN , DOUBLE , FLOAT ;
+terminal IF , ELSE ;
+terminal FOR , WHILE , CONTINUE , BREAK ;
+terminal EQUAL , NOTEQUAL ;
+terminal AND , OR ;
+terminal LESSEQUAL , QREATEREQUAL , LESS , GREATER ;
+terminal INCREMENT , DECREMENT ;
+terminal PLUSEQUAL , MINUSEQUAL ;
+terminal PLUS , MINUS , MULTIPLY , DIVIDE , MOD ;
+terminal ASSIGN ;
+terminal LPAREN , RPAREN , LCURL , RCURL ;
+terminal SEMICOLON ;
+
+terminal java.lang.String STRING_VAL ;
+terminal java.lang.Character CHAR_VAL;
+terminal java.lang.Double DOUBLE_VAL ;
+terminal java.lang.Integer INT_VAL ;
+terminal java.lang.Boolean BOOLEAN_VAL ;
+
+terminal java.lang.String ID ;
+
+non terminal   Program ;
+non terminal   MainMethod ;
+
+non terminal   StatementList ;
+non terminal   Statement ;
+
+non terminal   java.lang.String Types ;
+non terminal   Values ;
+
+non terminal   VarDeclaration , VarAssignment ;
+non terminal   AssignmentRule ;
+
+non terminal   IfStatement , ElseStatement;
+
+non terminal   ForStatement ;
+non terminal   WhileStatement ;
+
+non terminal   java.lang.Integer IntExpression;
+non terminal   Operator ;
+non terminal   IntExpressionAd ;
+
+non terminal   java.lang.Boolean CmpExpressionList ;
+non terminal   CmpExpressionCont ;
+non terminal   java.lang.Boolean CmpExpression ;
+non terminal   CmpOperator ;
+
+precedence nonassoc ELSE;
+precedence nonassoc IF;
+
+precedence left PLUS, MINUS ;
+precedence left MULTIPLY , DIVIDE ;
+precedence left MOD ;
+
+start with Program ;
+
+Program         ::= MainMethod
+;
+
+MainMethod      ::= VOID MAIN LPAREN RPAREN LCURL StatementList RCURL {: System.out.println("__ Main Program __"); :}
+;
+
+StatementList   ::= Statement StatementList
+                  |
+                    {: /* Epsilon */ /* Nothing */ :}
+;
+
+Statement       ::= VarDeclaration SEMICOLON
+                  |
+                    VarAssignment SEMICOLON
+                  |
+                    IF LPAREN CmpExpressionList RPAREN Statement ElseStatement {: System.out.println("__ If Statement __"); :}
+                  |
+                    FOR LPAREN VarDeclaration SEMICOLON CmpExpressionList SEMICOLON VarAssignment RPAREN Statement {: System.out.println("__ For Statement __"); :}
+                  |
+                    WHILE LPAREN CmpExpressionList RPAREN Statement {: System.out.println("__ While Statement __"); :}
+                  |
+                    CONTINUE SEMICOLON {: System.out.println("__ CONTINUE Statement __"); :}
+                  |
+                    BREAK SEMICOLON {: System.out.println("__ BREAK Statement __"); :}
+                  |
+                    RETURN SEMICOLON {: System.out.println("__ RETURN Statement __"); :}
+                  |
+                    LCURL StatementList RCURL {: System.out.println("__ { Statement } __"); :}
+;
+
+VarDeclaration  ::= Types:t ID:i ASSIGN Values {: if(findToken(i)!=0){ allTokens.elementAt(findToken(i)-1).setType(t); } ;System.out.println("__ Variable Declared __"); :}
+                  | Types:t ID:i {: if(findToken(i)!=0){ allTokens.elementAt(findToken(i)-1).setType(t); } ;System.out.println("__ Variable Declared __"); :}
+;
+
+VarAssignment   ::= ID AssignmentRule {: System.out.println("__ Variable Assigned __"); :}
+;
+
+Types           ::= INT:t {: RESULT = String.valueOf(t); :}
+                  | FLOAT:t {: RESULT = String.valueOf(t); :}
+                  | DOUBLE:t {: RESULT = String.valueOf(t); :}
+                  | STRING:t {: RESULT = String.valueOf(t); :}
+                  | CHAR:t {: RESULT = String.valueOf(t); :}
+                  | BOOLEAN:t {: RESULT = String.valueOf(t); :}
+;
+
+Values          ::= DOUBLE_VAL|STRING_VAL|CHAR_VAL|BOOLEAN_VAL|IntExpression
+;
+
+AssignmentRule  ::= ASSIGN Values|INCREMENT|DECREMENT|PLUSEQUAL INT_VAL|MINUSEQUAL INT_VAL
+;
+
+ElseStatement   ::= ELSE Statement {: System.out.println("__ { ELSE Statement } __"); :}
+                  |
+                    {: /* Epsilon */ /* Nothing */ :}
+;
+IntExpression   ::= LPAREN IntExpression RPAREN IntExpressionAd |ID IntExpressionAd |INT_VAL IntExpressionAd
+;
+
+IntExpressionAd ::= Operator IntExpression
+                  |
+                    {: /* Epsilon */ /* Nothing */ :}
+;
+
+Operator ::= PLUS|MINUS|MULTIPLY|DIVIDE|MOD
+;
+
+CmpExpressionList
+               ::= ID CmpOperator INT_VAL CmpExpressionCont {: System.out.println("__ Compare Statement __"); :}
+;
+
+CmpExpressionCont
+               ::= AND ID CmpOperator INT_VAL CmpExpressionCont
+                  |
+                   OR ID CmpOperator INT_VAL CmpExpressionCont
+                  |
+                    {: /* Epsilon */ /* Nothing */ :}
+;
+CmpOperator 
+            ::= QREATEREQUAL|LESSEQUAL|LESS|GREATER|NOTEQUAL|EQUAL
+; 
