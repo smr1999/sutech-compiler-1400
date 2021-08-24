@@ -5,7 +5,7 @@ public class Main {
   public static void main(String[] args) {
     Vector<Token> allTokens = new Vector<>();
     try {
-      Scanner scanner = new Scanner(new FileReader(args[0]));
+      Lexical scanner = new Lexical(new FileReader(args[0]));
       scanner.setTable(allTokens);
 
       Parser parser = new Parser(scanner);
