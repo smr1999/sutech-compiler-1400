@@ -168,6 +168,8 @@ Operator ::= PLUS|MINUS|MULTIPLY|DIVIDE|MOD
 
 CmpExpressionList
                ::= ID CmpOperator INT_VAL CmpExpressionCont {: System.out.println("__ Compare Statement __"); :}
+                  |
+                   ID CmpOperator BOOLEAN_VAL CmpExpressionCont {: System.out.println("__ Compare Statement __"); :}  
 ;
 
 CmpExpressionCont
