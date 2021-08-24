@@ -1,18 +1,47 @@
+import java_cup.runtime.*;
 import java.util.Vector;
 
 %%
 
 %class Lexical
-%standalone
+
+%line
+%column
+
+%cup
 
 %state MULTI_COMMENT
 %state SINGLE_COMMENT
 
 %{
-    int counter = 0;
-    Vector<Token> table = new Vector<Token>();
+    private Symbol symbol(int type) {
+        return new Symbol(type, yyline, yycolumn);
+    }
+    private Symbol symbol(int type, Object value) {
+        return new Symbol(type, yyline, yycolumn, value);
+    }
 
-    public int getToken(String name , Vector<Token> allTokens){
+    public void error_lex(){
+        System.err.println(yytext() + " : " + "Invalid syntax .");
+        System.exit(0);
+    }
+
+    public void print_sym(String name){
+        System.out.println(name);
+    }
+
+    public void print_sym(String name , String value){
+        System.out.println(name + " : " + value);
+    }
+    
+    int counter = 0;
+    public Vector<Token> allTokens;
+
+    public void setTable(Vector<Token> allTokens){
+        this.allTokens = allTokens;
+    }
+
+    public int findToken(String name,Vector<Token> allTokens){
         for(Token t : allTokens){
             if(t.Name.equals(name)){
                 return t.ID;
@@ -20,138 +49,119 @@ import java.util.Vector;
         }
         return 0;
     }
+
 %}
 
-%eof{
-    System.out.println();
-    
-    TableList tl = new TableList(4, "ID" , "Name" , "Value" , "Type").sortBy(0).withUnicode(true);
-
-    table.forEach(item -> tl.addRow(String.valueOf(item.ID),item.Name,item.Value,item.Type));
-
-    tl.print();
-
-%eof}
-
-ALPHA=[A-Za-z]
+ALPHA=[A-Za-z_]
 DIGIT=[0-9]
 NONNEWLINE_WHITE_SPACE_CHAR=[\ \t\b\012]
 NEWLINE=\r|\n|\r\n
 WHITE_SPACE_CHAR=[\n\r\ \t\b\012]
 STRING_TEXT=(\\\"|[^\n\r\"\\]|\\{WHITE_SPACE_CHAR}+\\)*
 Ident = {ALPHA}({ALPHA}|{DIGIT}|_)*
-DATA_TYPE = "void"|"long"|"int"|"String"|"char"|"boolean"|"double"|"float"
 STRING_TYPE = "\""{STRING_TEXT}"\""
 DOUBLE_TYPE = {DIGIT}+"."{DIGIT}*
-NUMERIC_TYPE = {DIGIT}+
+INTEGER_TYPE = {DIGIT}+
 BOOLEAN_TYPE = "true"|"false"
 CHAR_TYPE = "\'"{ALPHA}"\'"
-KEYWORDS_WITHOUT_DT = "public"|"private"|"protected"|"static"|"else if"|"elseif"|"if"|"else"|"then"|"break"|"for"|"while"|"default"|"continue"|"return"
-
-TYPES = {STRING_TYPE}|{CHAR_TYPE}|{DOUBLE_TYPE}|{NUMERIC_TYPE}|{BOOLEAN_TYPE}
 
 %%
 
 <YYINITIAL>{
-    "/*" {yybegin(MULTI_COMMENT);}
-    "//" {yybegin(SINGLE_COMMENT);}
+    "/*" {yybegin(MULTI_COMMENT);} //
+    "//" {yybegin(SINGLE_COMMENT);} //
 
-    {KEYWORDS_WITHOUT_DT} {System.out.println(yytext() + " : "+ TokenType.KEYWORD);}
+    "void" { print_sym("void") ; return symbol(sym.VOID); } //
 
-    {DATA_TYPE}{NONNEWLINE_WHITE_SPACE_CHAR}+{Ident}{NONNEWLINE_WHITE_SPACE_CHAR}*"="{NONNEWLINE_WHITE_SPACE_CHAR}*{TYPES} {
-        String temp = yytext();
-        
-        String type_ = temp.substring(0, temp.indexOf(" "));
-       
-        temp = temp.substring(temp.indexOf(" "), temp.length());
+    "main" { print_sym("MAIN") ; return symbol(sym.MAIN); } //
 
-        String name_ = temp.substring(0,temp.indexOf("="));
-        name_ = name_.replaceAll("\\s", "");
+    "int" { print_sym("INT") ; return symbol(sym.INT,yytext()); } //
 
-        String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceFirst("\\s*", "");
+    "String" { print_sym("STRING") ; return symbol(sym.STRING,yytext()); } //
 
-        if(getToken(name_,table)==0){
-            table.add(new Token(++counter , name_ , type_ , value_));
-        }
-        else{
-            table.elementAt(getToken(name_,table)-1).Value = value_;
-        }
+    "char" { print_sym("CHAR") ; return symbol(sym.CHAR,yytext()); } //
 
-        System.out.println(type_ + " : "+ TokenType.KEYWORD);
-        System.out.println(name_ + " : "+ TokenType.IDENTIFIER);
-        System.out.println("=" + " : "+ TokenType.OPERATOR);
-        System.out.println(value_ + " : "+ TokenType.LITERAL);
-    }
-    
-    {Ident}{NONNEWLINE_WHITE_SPACE_CHAR}*"="{NONNEWLINE_WHITE_SPACE_CHAR}*{TYPES} {
-        String temp = yytext();
-        
-        String name_ = temp.substring(0,temp.indexOf("=")); 
-        name_ = name_.replaceAll("\\s", "");
+    "boolean" { print_sym("BOOLEAN") ; return symbol(sym.BOOLEAN,yytext()); } //
 
-        String value_ = temp.substring(temp.indexOf("=")+1,temp.length());
-        value_ = value_.replaceFirst("\\s*", "");
+    "double" { print_sym("DOUBLE") ; return symbol(sym.DOUBLE,yytext()); } //
 
-        if(getToken(name_,table)==0){
-            table.add(new Token(++counter , name_ , "N/A" , value_));
-        }
-        else{
-            table.elementAt(getToken(name_,table)-1).Value = value_;
-        }
-        
-        System.out.println(name_ + " : "+ TokenType.IDENTIFIER);
-        System.out.println("=" + " : "+ TokenType.OPERATOR);
-        System.out.println(value_ + " : "+ TokenType.LITERAL);
-    }
+    "float" { print_sym("FLOAT") ; return symbol(sym.FLOAT,yytext()); } //
 
-    {DATA_TYPE}{NONNEWLINE_WHITE_SPACE_CHAR}+{Ident} {
-        String temp = yytext();
-        
-        String type_ = temp.substring(0, temp.indexOf(" "));
-        temp = temp.substring(temp.indexOf(" "), temp.length());
+    "if" { print_sym("IF") ; return symbol(sym.IF); } //
 
-        temp = temp.replaceAll("\\s", "");
+    "else" { print_sym("ELSE") ; return symbol(sym.ELSE); } //
 
-        String name_ = temp.substring(0,temp.length()); 
+    "break" { print_sym("BREAK") ; return symbol(sym.BREAK); }
 
-        if(getToken(name_,table)==0){
-            table.add(new Token(++counter , name_ , type_ , "N/A" ));
-        }
-        else{
-            table.elementAt(getToken(name_,table)-1).Type = type_;
-        }
+    "for" { print_sym("FOR") ; return symbol(sym.FOR); }
 
-        System.out.println(type_ + " : "+ TokenType.KEYWORD);
-        System.out.println(name_ + " : "+ TokenType.IDENTIFIER);
-    }
+    "while" { print_sym("WHILE") ; return symbol(sym.WHILE); } //
 
-    {Ident} {
-        String temp = yytext();
+    "continue" { print_sym("CONTINUE") ; return symbol(sym.CONTINUE); } //
 
-        if(getToken(temp,table)==0){
-            table.add(new Token(++counter , temp , "N/A" , "N/A"));
-        }
-        
-        System.out.println(temp + " : " + TokenType.IDENTIFIER);
-    }
+    "return" { print_sym("RETURN") ; return symbol(sym.RETURN); } //
 
-    {DATA_TYPE} {System.out.println(yytext() + " : "+ TokenType.KEYWORD);}
+    "==" { print_sym("EQUAL") ; return symbol(sym.EQUAL); } //
 
+    "!=" { print_sym("NOTEQUAL") ; return symbol(sym.NOTEQUAL); } //
 
-    "=="|"!="|"&&"|"||"|"<="|">="|"++"|"--" {System.out.println(yytext() + " : "+ TokenType.OPERATOR);}
+    "&&" { print_sym("AND") ; return symbol(sym.AND); } //
 
-    "+"|"-"|"*"|"/"|"%"|"="|"<"|">" {System.out.println(yytext() + " : "+ TokenType.OPERATOR);}
+    "||" { print_sym("OR") ; return symbol(sym.OR); } //
 
-    {TYPES} {System.out.println(yytext() + " : "+ TokenType.LITERAL);}
+    "<=" { print_sym("LESSEQUAL") ; return symbol(sym.LESSEQUAL); } //
 
-    "("|")"|"{"|"}"|";"|"."|"["|"]"|":" {System.out.println(yytext() + " : "+ TokenType.DELIMITER);}
+    ">=" { print_sym("GREATEREQUAL") ; return symbol(sym.QREATEREQUAL); } //
 
-    "|"|"\""|"\'"|"&" {System.out.println(yytext() + " : "+ TokenType.UNDEFINED);}
+    "++" { print_sym("INCREMENT") ; return symbol(sym.INCREMENT); } //
+
+    "--" { print_sym("DECREMENT") ; return symbol(sym.DECREMENT); } //
+
+    "+=" { print_sym("PLUSEQUAL") ; return symbol(sym.PLUSEQUAL); }
+
+    "-=" { print_sym("MINUSEQUAL") ; return symbol(sym.MINUSEQUAL); }
+
+    "+" { print_sym("PLUS") ; return symbol(sym.PLUS); } //
+
+    "-" { print_sym("MINUS") ; return symbol(sym.MINUS); } //
+
+    "*" { print_sym("MULTIPLY") ; return symbol(sym.MULTIPLY); } //
+
+    "/" { print_sym("DIVIDE") ; return symbol(sym.DIVIDE); } //
+
+    "%" { print_sym("MOD") ; return symbol(sym.MOD); } //
+
+    "=" { print_sym("ASSIGN") ; return symbol(sym.ASSIGN); } //
+
+    "<" { print_sym("LESS") ; return symbol(sym.LESS); } //
+
+    ">" { print_sym("GREATER") ; return symbol(sym.GREATER); } //
+
+    {STRING_TYPE} { print_sym("STRING_VAL",yytext()) ; return symbol(sym.STRING_VAL,yytext()); } //
+
+    {CHAR_TYPE} { print_sym("CHAR_VAL",yytext()) ; return symbol(sym.CHAR_VAL,yytext()); } //
+
+    {DOUBLE_TYPE} { print_sym("DOUBLE_VAL",yytext()) ; return symbol(sym.DOUBLE_VAL,yytext()); } //
+
+    {INTEGER_TYPE} { print_sym("INT_VAL",yytext()) ; return symbol(sym.INT_VAL,yytext()); } //
+
+    {BOOLEAN_TYPE} { print_sym("BOOLEAN_VAL",yytext()) ; return symbol(sym.BOOLEAN_VAL,yytext()); } //
+
+    {Ident} {String tname = yytext();if(findToken(tname,this.allTokens) == 0) {allTokens.add(new Token(++counter,tname,"-"));} print_sym("ID",yytext()) ; return symbol(sym.ID,yytext()); } //
+
+    "(" { print_sym("LPRAREN") ; return symbol(sym.LPAREN); } //
+
+    ")" { print_sym("RPAREN") ; return symbol(sym.RPAREN); } //
+
+    "{" { print_sym("LCURL") ; return symbol(sym.LCURL); } //
+
+    "}" { print_sym("RCURL") ; return symbol(sym.RCURL); } //
+
+    ";" { print_sym("SEMICOLON") ; return symbol(sym.SEMICOLON); } //
 
     {WHITE_SPACE_CHAR} {/* nothing */}
 
-    . {System.out.println(yytext() + " : "+ TokenType.UNDEFINED);}
+    . { error_lex(); }
 }
 
 <MULTI_COMMENT>{
